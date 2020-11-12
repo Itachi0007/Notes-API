@@ -3,50 +3,41 @@ const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
 const authorService = require('../service/author.service.js');
-
+const noteService = require('../service/note.service.js');
 
 // create and save new note
 exports.create = async function (req, res) {
     console.log("========================================");
     // validate req
-    if(!req.body.note.content || !req.body.note.title) {
-        return res.status(400).send( {message: "Content/Title cannot be empty!"} );
+    if (!req.body.note.content || !req.body.note.title) {
+        return res.status(400).send({ message: "Content/Title cannot be empty!" });
     }
     var n = req.body.authors.length;
-    if(n===0) {
-        return res.status(400).send( {message: "Authors cannot be empty!"} );
+    if (n === 0) {
+        return res.status(400).send({ message: "Authors cannot be empty!" });
     }
     const authorList = req.body.authors;
     // validate authorID
-    for(var i=0; i<n; i++) {
-        if(authorList[i]._id) {
+    for (var i = 0; i < n; i++) {
+        if (authorList[i]._id) {
             var isValidAuthor = await Author.findById(authorList[i]._id)
                 .then()
-                .catch(err => {console.log(err.message); } )
-            if(!isValidAuthor) {
-            return res.status(400).send( {message: "Invalid AuthorID"} );
+                .catch(err => { console.log(err.message); })
+            if (!isValidAuthor) {
+                return res.status(400).send({ message: "Invalid AuthorID" });
             }
         }
     };
     // create Note
-    const note = new Note({
-        title: req.body.note.title,
-        content: req.body.note.content,
-    });
-    const createdNote = await note.save()
-        .then(console.log("saved"))
-        .catch(err => { console.log(err.message); })
-    if (!createdNote) {
-        return res.status(500).send({ message: "Couldn't save Note" });
-    }
+    const note = await noteService.createNote(req, res);
     // create Author
-    var isAuthorCreated = await authorService.newAuthor(req,res,note._id)
+    var isAuthorCreated = await authorService.newAuthor(req, res, note._id)
         .then()
         .catch(err => { console.log(err.message); })
-    if(!isAuthorCreated) {
-        return res.status(500).send( {message: "Couldn't create Author"} );
+    if (!isAuthorCreated) {
+        return res.status(500).send({ message: "Couldn't create Author" });
     }
-    return res.send({message: "Note saved successfully"});
+    return res.send({ message: "Note saved successfully" });
 };
 // retrieve and show all notes
 exports.findAll = (req, res) => {
