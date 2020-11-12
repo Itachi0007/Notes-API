@@ -2,6 +2,7 @@ const { response } = require('express');
 const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
+const authorService = require('../service/author.service.js');
 
 
 // create and save new note
@@ -39,39 +40,13 @@ exports.create = async function(req,res) {
         return res.status(500).send( {message: "Couldn't save Note"} );
     }
     // create Author
-    for(var i=0; i<n; i++) {
-        if(!authorList[i]._id) {
-            const author = new Author({
-                name: authorList[i].name,
-                age: authorList[i].age,
-                notes: []
-            });
-            author.notes.push(note._id);
-            author.save(async function(err, result) {
-                try {
-                    var isUpdated = await Note.findByIdAndUpdate({_id: note._id}, { $push: {authors : result._id} })
-                        .then()
-                        .catch(err => { return res.status(500).send( {message: "Some error ocurred", err} ) });
-                    if(!isUpdated) {
-                        return res.status(500).send( {message: "Some error ocurred", err} );
-                    }
-                }
-                catch(err) {
-                    return res.status(500).send( {message: "Some error ocurred", err} )
-                }
-            })
-        }
-        // if author has a valid ID
-        else {
-            Note.findByIdAndUpdate({_id: note._id}, { $push: {authors : authorList[i]._id} })
-                .then()
-                .catch(err => { return res.status(500).send( {message: "Some error ocurred", err} ) });
-
-            Author.findByIdAndUpdate({_id: authorList[i]._id} , { $push : {notes: note._id}})
-                .then()
-                .catch( err => { res.status(500).send( {message: "Some error ocurred", err} ) } );
-        }
+    const isAuthorCreated = await authorService.newAuthor(req,res)
+        .then()
+        .catch(err => { console.log(err.message); })
+    if(!isAuthorcreated) {
+        return res.status(500).send( {message: "Couldn't create Author"} );
     }
+    
     res.send({message: "Note saved successfully"});
 };
 // retrieve and show all notes
