@@ -1,8 +1,22 @@
-const bodyValidation = function (x) {
+const validationBody = function (x) {
     if (!x) {
-        return false;
-    }
-    else {
         return true;
     }
+    else {
+        return false;
+    }
 }
+
+const validationLength = function (y) {
+    if (y == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+module.exports = {
+    validationBody,
+    validationLength
+};
