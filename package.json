@@ -1,16 +1,29 @@
 {
-  "name": "note-node",
+  "name": "noteapi",
   "version": "1.0.0",
   "description": "Notes app made with NodeJs",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
-  "author": "Ahmer",
+  "author": "Ahmer & Janak",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "mongoose": "^5.10.9"
-  }
+    "mongoose": "^5.10.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Itachi0007/Notes-API.git"
+  },
+  "keywords": [
+    "notes",
+    "api"
+  ],
+  "bugs": {
+    "url": "https://github.com/Itachi0007/Notes-API/issues"
+  },
+  "homepage": "https://github.com/Itachi0007/Notes-API#readme"
 }
