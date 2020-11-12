@@ -3,31 +3,30 @@ const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
 const authorService = require('../service/author.service.js');
+const validate = require('../utilities/validation.js');
 
 
 // create and save new note
 exports.create = async function (req, res) {
     console.log("========================================");
     // validate req
-    if(!req.body.note.content || !req.body.note.title) {
+    var reqBodyValidate = validate.body(req);
+    if(!reqBodyValidate) {
         return res.status(400).send( {message: "Content/Title cannot be empty!"} );
     }
-    var n = req.body.authors.length;
-    if(n===0) {
+    var reqBodyLength = validate.length(req);
+    if(!reqBodyLength) {
         return res.status(400).send( {message: "Authors cannot be empty!"} );
     }
-    const authorList = req.body.authors;
+    
     // validate authorID
-    for(var i=0; i<n; i++) {
-        if(authorList[i]._id) {
-            var isValidAuthor = await Author.findById(authorList[i]._id)
-                .then()
-                .catch(err => {console.log(err.message); } )
-            if(!isValidAuthor) {
-            return res.status(400).send( {message: "Invalid AuthorID"} );
-            }
-        }
-    };
+    var authorValidation = await validate.author(req,res)
+        .then()
+        .catch(err => { console.log(err.message); })
+    if(!authorValidation) {
+        return res.status(400).send( {message: "Invalid AuthorID"} )
+    }
+    
     // create Note
     const note = new Note({
         title: req.body.note.title,
