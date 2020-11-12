@@ -5,57 +5,48 @@ const Note = Model.Note;
 const authorService = require('../service/author.service.js');
 
 
-=======
-const validation = require('../utilities/validation.js');
-const bodyValidation = validation.validationBody();
-const lengthValidation = validation.validationLength();
-const noteService = require('../service/note.service.js');
-const noteCreate = noteService.createNote();
->>>>>>> 37062faa3d0b5111c5a58bad0ae212e338c042c7
 // create and save new note
 exports.create = async function (req, res) {
     console.log("========================================");
     // validate req
-    if (bodyValidation(req.body.note.content) || bodyValidation(req.body.note.title)) {
-        return res.status(400).send({ message: "Content/Title cannot be empty!" });
+    if(!req.body.note.content || !req.body.note.title) {
+        return res.status(400).send( {message: "Content/Title cannot be empty!"} );
     }
     var n = req.body.authors.length;
-    if (lengthValidation(n)) {
-        return res.status(400).send({ message: "Authors cannot be empty!" });
+    if(n===0) {
+        return res.status(400).send( {message: "Authors cannot be empty!"} );
     }
     const authorList = req.body.authors;
     // validate authorID
-    for (var i = 0; i < n; i++) {
-        if (authorList[i]._id) {
+    for(var i=0; i<n; i++) {
+        if(authorList[i]._id) {
             var isValidAuthor = await Author.findById(authorList[i]._id)
                 .then()
-                .catch(err => { console.log(err.message); })
-            if (!isValidAuthor) {
-                return res.status(400).send({ message: "Invalid AuthorID" });
+                .catch(err => {console.log(err.message); } )
+            if(!isValidAuthor) {
+            return res.status(400).send( {message: "Invalid AuthorID"} );
             }
         }
     };
     // create Note
-    noteCreate(req);
-    // const note = new Note({
-    //     title: req.body.note.title,
-    //     content: req.body.note.content,
-    // });
-    // const createdNote = await note.save()
-    //     .then(console.log("saved"))
-    //     .catch(err => { console.log(err.message); })
-    // if (!createdNote) {
-    //     return res.status(500).send({ message: "Couldn't save Note" });
-    // }
+    const note = new Note({
+        title: req.body.note.title,
+        content: req.body.note.content,
+    });
+    const createdNote = await note.save()
+        .then(console.log("saved"))
+        .catch(err => { console.log(err.message); })
+    if (!createdNote) {
+        return res.status(500).send({ message: "Couldn't save Note" });
+    }
     // create Author
-    const isAuthorCreated = await authorService.newAuthor(req,res)
+    var isAuthorCreated = await authorService.newAuthor(req,res,note._id)
         .then()
         .catch(err => { console.log(err.message); })
-    if(!isAuthorcreated) {
+    if(!isAuthorCreated) {
         return res.status(500).send( {message: "Couldn't create Author"} );
     }
-    
-    res.send({message: "Note saved successfully"});
+    return res.send({message: "Note saved successfully"});
 };
 // retrieve and show all notes
 exports.findAll = (req, res) => {
