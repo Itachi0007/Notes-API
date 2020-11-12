@@ -2,7 +2,7 @@ const { response } = require('express');
 const model = require('../models/note-model.js');
 const Note = model.Note;
 
-const createNote = function (req) {
+const createNote = async function (req, res) {
     const note = new Note({
         title: req.body.note.title,
         content: req.body.note.content,
@@ -13,6 +13,7 @@ const createNote = function (req) {
     if (!createdNote) {
         return res.status(500).send({ message: "Couldn't save Note" });
     }
+    return note;
 
 }
 

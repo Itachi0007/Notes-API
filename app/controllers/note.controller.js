@@ -3,8 +3,7 @@ const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
 const authorService = require('../service/author.service.js');
-const validate = require('../utilities/validation.js');
-
+const noteService = require('../service/note.service.js');
 
 // create and save new note
 exports.create = async function (req, res) {
@@ -28,24 +27,21 @@ exports.create = async function (req, res) {
     }
     
     // create Note
-    const note = new Note({
-        title: req.body.note.title,
-        content: req.body.note.content,
-    });
-    const createdNote = await note.save()
-        .then(console.log("saved"))
-        .catch(err => { console.log(err.message); })
-    if (!createdNote) {
+    const note = await noteService.createNote(req, res)
+        .then()
+        .catch( err=> {console.log(err.message);})
+    if(!note) {
         return res.status(500).send({ message: "Couldn't save Note" });
     }
     // create Author
-    var isAuthorCreated = await authorService.newAuthor(req,res,note._id)
+    var isAuthorCreated = await authorService.newAuthor(req, res, note._id)
         .then()
         .catch(err => { console.log(err.message); })
-    if(!isAuthorCreated) {
-        return res.status(500).send( {message: "Couldn't create Author"} );
+    if (!isAuthorCreated) {
+        return res.status(500).send({ message: "Couldn't create Author" });
     }
-    return res.send({message: "Note saved successfully"});
+    
+    return res.send({ message: "Note saved successfully" });
 };
 // retrieve and show all notes
 exports.findAll = (req, res) => {
