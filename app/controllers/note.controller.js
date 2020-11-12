@@ -2,7 +2,6 @@ const { response } = require('express');
 const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
-<<<<<<< HEAD
 const authorService = require('../service/author.service.js');
 
 
