@@ -3,9 +3,10 @@ const Model = require('../models/note-model.js');
 const Author = Model.Author;
 const Note = Model.Note;
 const validation = require('../utilities/validation.js');
-const bodyValidation = validation.validationBody;
-const lengthValidation = validation.validationLength;
-
+const bodyValidation = validation.validationBody();
+const lengthValidation = validation.validationLength();
+const noteService = require('../service/note.service.js');
+const noteCreate = noteService.createNote();
 // create and save new note
 exports.create = async function (req, res) {
     console.log("========================================");
@@ -30,16 +31,17 @@ exports.create = async function (req, res) {
         }
     };
     // create Note
-    const note = new Note({
-        title: req.body.note.title,
-        content: req.body.note.content,
-    });
-    const createdNote = await note.save()
-        .then(console.log("saved"))
-        .catch(err => { console.log(err.message); })
-    if (!createdNote) {
-        return res.status(500).send({ message: "Couldn't save Note" });
-    }
+    noteCreate(req);
+    // const note = new Note({
+    //     title: req.body.note.title,
+    //     content: req.body.note.content,
+    // });
+    // const createdNote = await note.save()
+    //     .then(console.log("saved"))
+    //     .catch(err => { console.log(err.message); })
+    // if (!createdNote) {
+    //     return res.status(500).send({ message: "Couldn't save Note" });
+    // }
     // create Author
     for (var i = 0; i < n; i++) {
         if (!authorList[i]._id) {
