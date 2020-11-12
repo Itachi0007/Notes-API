@@ -9,27 +9,30 @@ const noteService = require('../service/note.service.js');
 exports.create = async function (req, res) {
     console.log("========================================");
     // validate req
-    if (!req.body.note.content || !req.body.note.title) {
-        return res.status(400).send({ message: "Content/Title cannot be empty!" });
+    var reqBodyValidate = validate.body(req);
+    if(!reqBodyValidate) {
+        return res.status(400).send( {message: "Content/Title cannot be empty!"} );
     }
-    var n = req.body.authors.length;
-    if (n === 0) {
-        return res.status(400).send({ message: "Authors cannot be empty!" });
+    var reqBodyLength = validate.length(req);
+    if(!reqBodyLength) {
+        return res.status(400).send( {message: "Authors cannot be empty!"} );
     }
-    const authorList = req.body.authors;
+    
     // validate authorID
-    for (var i = 0; i < n; i++) {
-        if (authorList[i]._id) {
-            var isValidAuthor = await Author.findById(authorList[i]._id)
-                .then()
-                .catch(err => { console.log(err.message); })
-            if (!isValidAuthor) {
-                return res.status(400).send({ message: "Invalid AuthorID" });
-            }
-        }
-    };
+    var authorValidation = await validate.author(req,res)
+        .then()
+        .catch(err => { console.log(err.message); })
+    if(!authorValidation) {
+        return res.status(400).send( {message: "Invalid AuthorID"} )
+    }
+    
     // create Note
-    const note = await noteService.createNote(req, res);
+    const note = await noteService.createNote(req, res)
+        .then()
+        .catch( err=> {console.log(err.message);})
+    if(!note) {
+        return res.status(500).send({ message: "Couldn't save Note" });
+    }
     // create Author
     var isAuthorCreated = await authorService.newAuthor(req, res, note._id)
         .then()
@@ -37,6 +40,7 @@ exports.create = async function (req, res) {
     if (!isAuthorCreated) {
         return res.status(500).send({ message: "Couldn't create Author" });
     }
+    
     return res.send({ message: "Note saved successfully" });
 };
 // retrieve and show all notes
