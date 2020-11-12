@@ -4,6 +4,7 @@ const Author = Model.Author;
 const Note = Model.Note;
 const authorService = require('../service/author.service.js');
 const noteService = require('../service/note.service.js');
+const validate = require('../utilities/validation.js');
 
 // create and save new note
 exports.create = async function (req, res) {
@@ -40,7 +41,7 @@ exports.create = async function (req, res) {
     if (!isAuthorCreated) {
         return res.status(500).send({ message: "Couldn't create Author" });
     }
-    
+
     return res.send({ message: "Note saved successfully" });
 };
 // retrieve and show all notes
